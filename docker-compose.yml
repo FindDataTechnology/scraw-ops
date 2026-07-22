@@ -1,0 +1,67 @@
+# scraw-ops: shared central scrapyd + scrapyd-web + redis service
+#
+# All scraw-* projects deploy their eggs into the single `scrapyd` service below.
+# `scrapyd-web` (http://localhost:5000) manages every project/node from one UI.
+# `redis` backs the scrapy-redis scheduler + dupefilter for all projects.
+#
+# Start:  docker compose up -d --build
+# Stop:   docker compose down
+# Logs:   docker compose logs -f scrapyd scrapydweb
+
+services:
+  redis:
+    image: redis:7
+    container_name: scraw-redis
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  scrapyd:
+    build:
+      context: .
+      dockerfile: Dockerfile.scrapyd
+    container_name: scraw-scrapyd
+    volumes:
+      - ./scrapyd.conf:/etc/scrapyd/scrapyd.conf:ro
+      - scrapyd-eggs:/var/lib/scrapyd/eggs
+      - scrapyd-logs:/var/lib/scrapyd/logs
+      - scrapyd-dbs:/var/lib/scrapyd/dbs
+    ports:
+      - "6800:6800"
+    environment:
+      # Remote redis (same host as remote Postgres: 192.168.1.4:6379) backs every
+      # deployed project's scrapy-redis scheduler. The containerized `redis` service
+      # below is an optional local-dev fallback; set REDIS_URL=redis://redis:6379/0 to use it.
+      REDIS_URL: "redis://192.168.1.4:6379/0"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  scrapydweb:
+    build:
+      context: .
+      dockerfile: Dockerfile.scrapydweb
+    container_name: scraw-scrapydweb
+    volumes:
+      - ./scrapydweb_settings.py:/app/scrapydweb_settings.py:ro
+    ports:
+      - "5000:5000"
+    depends_on:
+      - scrapyd
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  scrapyd-eggs:
+  scrapyd-logs:
+  scrapyd-dbs:

@@ -1,0 +1,35 @@
+# scraw-ops without local redis (uses remote 192.168.1.4:6379)
+services:
+  scrapyd:
+    build:
+      context: .
+      dockerfile: Dockerfile.scrapyd
+    container_name: scraw-scrapyd
+    volumes:
+      - ./scrapyd.conf:/etc/scrapyd/scrapyd.conf:ro
+      - scrapyd-eggs:/var/lib/scrapyd/eggs
+      - scrapyd-logs:/var/lib/scrapyd/logs
+      - scrapyd-dbs:/var/lib/scrapyd/dbs
+    ports:
+      - "6800:6800"
+    environment:
+      REDIS_URL: "redis://192.168.1.4:6379/0"
+    restart: unless-stopped
+
+  scrapydweb:
+    build:
+      context: .
+      dockerfile: Dockerfile.scrapydweb
+    container_name: scraw-scrapydweb
+    volumes:
+      - ./scrapydweb_settings.py:/app/scrapydweb_settings.py:ro
+    ports:
+      - "5001:5000"
+    depends_on:
+      - scrapyd
+    restart: unless-stopped
+
+volumes:
+  scrapyd-eggs:
+  scrapyd-logs:
+  scrapyd-dbs:

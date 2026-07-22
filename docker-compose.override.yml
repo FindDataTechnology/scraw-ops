@@ -1,0 +1,15 @@
+# docker-compose.override.yml - auto-merged by `docker compose up`.
+#
+# Pulls the Harbor-published scrapyd image instead of building Dockerfile.scrapyd
+# locally. The `!reset` tag drops the `build:` key inherited from docker-compose.yml
+# so Compose pulls the image rather than building it. Requires Docker Compose v2.24+
+# (for the !reset tag). `scrapydweb` and `redis` are untouched: scrapydweb still
+# builds locally, redis still uses the official redis:7 image.
+#
+# Remove (or rename) this file to restore pure local-build mode.
+
+services:
+  scrapyd:
+    image: ${HARBOR_HOST}/${HARBOR_PROJECT}/scraw-ops-scrapyd:latest
+    pull_policy: always
+    build: !reset null

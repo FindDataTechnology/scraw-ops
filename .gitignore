@@ -1,0 +1,23 @@
+# Secrets / local env
+.env
+.env.*
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+
+# Local data / outputs (scrapyd uses docker volumes, but keep the tree clean)
+data/
+output/
+*.db
+*.db-shm
+*.db-wal
+
+# macOS / editor
+.DS_Store
+.idea/
+.vscode/

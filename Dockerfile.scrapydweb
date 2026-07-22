@@ -1,0 +1,17 @@
+# scrapyd-web image for the shared scraw-ops service.
+# Provides one UI (http://localhost:5000) managing all scraw-* projects/nodes.
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir "scrapydweb>=1.5"
+
+# scrapydweb reads scrapydweb_settings.py from the working directory by default.
+COPY scrapydweb_settings.py /app/scrapydweb_settings.py
+
+EXPOSE 5000
+
+CMD ["scrapydweb"]

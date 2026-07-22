@@ -1,0 +1,12 @@
+# Keep the image build context small for Dockerfile.scrapyd / Dockerfile.scrapydweb.
+.env
+.env.*
+.venv/
+venv/
+__pycache__/
+*.pyc
+.git
+.gitignore
+.DS_Store
+*.md
+docker-compose*.yml
