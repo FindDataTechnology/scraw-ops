@@ -38,10 +38,13 @@ services:
     ports:
       - "6800:6800"
     environment:
-      # Remote redis (same host as remote Postgres: 192.168.1.4:6379) backs every
-      # deployed project's scrapy-redis scheduler. The containerized `redis` service
-      # below is an optional local-dev fallback; set REDIS_URL=redis://redis:6379/0 to use it.
-      REDIS_URL: "redis://192.168.1.4:6379/0"
+      # Canonical redis = fd-redis on guangzhou-xinru (mesh) :30380, password-
+      # protected (real password: guangzhou-xinru:/etc/fd-open-data/db-credentials.env).
+      # From the Mac, run the SSH tunnel first (-L 30380:127.0.0.1:30380); containers
+      # reach it via host.docker.internal. Override via the REDIS_URL env var; the
+      # containerized `redis` service below is an optional local-dev fallback
+      # (set REDIS_URL=redis://redis:6379/0). LAN 192.168.1.4:6379 retired 2026-08-18.
+      REDIS_URL: "${REDIS_URL:-redis://:FD_REDIS_PASSWORD@host.docker.internal:30380/0}"
     depends_on:
       redis:
         condition: service_healthy

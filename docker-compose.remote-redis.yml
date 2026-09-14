@@ -1,4 +1,5 @@
-# scraw-ops without local redis (uses remote 192.168.1.4:6379)
+# scraw-ops without local redis (uses the canonical fd-redis on guangzhou-xinru
+# :30380, password-protected; LAN 192.168.1.4:6379 retired 2026-08-18)
 services:
   scrapyd:
     build:
@@ -13,7 +14,9 @@ services:
     ports:
       - "6800:6800"
     environment:
-      REDIS_URL: "redis://192.168.1.4:6379/0"
+      # Real password: guangzhou-xinru:/etc/fd-open-data/db-credentials.env.
+      # Mac runs need the SSH tunnel (-L 30380) -> host.docker.internal in-container.
+      REDIS_URL: "${REDIS_URL:-redis://:FD_REDIS_PASSWORD@host.docker.internal:30380/0}"
     restart: unless-stopped
 
   scrapydweb:

@@ -1,6 +1,7 @@
 # Secrets / local env
 .env
 .env.*
+!.env.example
 
 # Python
 .venv/
@@ -14,6 +15,7 @@ __pycache__/
 data/
 output/
 *.db
+*.sqlite3
 *.db-shm
 *.db-wal
 
